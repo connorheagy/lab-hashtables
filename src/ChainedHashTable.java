@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
  * A simple implementation of hash tables.
  *
  * @author Samuel A. Rebelsky
- * @author Your Name Here
+ * @author Vivien Yan and Connor Heagy 
  */
 public class ChainedHashTable<K,V> implements HashTable<K,V> {
 
@@ -156,17 +156,19 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     int index = find(key);
     @SuppressWarnings("unchecked")
     ArrayList<Pair<K,V>> alist = (ArrayList<Pair<K,V>>) buckets[index];
+
     if (alist == null) {
       if (REPORT_BASIC_CALLS && (reporter != null)) {
         reporter.report("get(" + key + ") failed");
       } // if reporter != null
       throw new IndexOutOfBoundsException("Invalid key: " + key);
-    } else {
-      Pair<K,V> pair = alist.get(0);
-      if (REPORT_BASIC_CALLS && (reporter != null)) {
-        reporter.report("get(" + key + ") => " + pair.value());
-      } // if reporter != null
-      return pair.value();
+    } else {    
+       for(Pair<K, V> target : alist){
+        if(target.key().equals(key)){
+          return target.value();
+        }
+       }
+      throw new IllegalAccessError("Same location " + key);
     } // get
   } // get(K)
 
@@ -204,6 +206,13 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     if (alist == null) {
       alist = new ArrayList<Pair<K,V>>();
       this.buckets[index] = alist;
+    }
+    for (Pair<K, V> target : alist) {
+      if (target.key().equals(key)) {
+        Pair<K,V> temp = new Pair<K,V>(key, value);
+        target = temp; 
+        return target.value();
+      }
     }
     alist.add(new Pair<K,V>(key, value));
     ++this.size;
